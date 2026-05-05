@@ -48,7 +48,7 @@ const port2 = 8080;
 var session = null;
 
 // home
-app.get('/', (req, res) => {
+app.get('/bank', (req, res) => {
 
     session = req.session;
     console.log(session.userid);
