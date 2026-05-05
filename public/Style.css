@@ -1,53 +1,113 @@
+/* ====== GLOBAL TERMINAL LOOK ====== */
 body {
-    background-color: #0a0a0a;
+    background-color: #000;
     color: #f6d000;
-    font-family: 'Bebas Neue', Impact, sans-serif;
+    font-family: "Courier New", monospace;
     margin: 0;
     padding: 0;
+    text-shadow: 0 0 8px #f6d000;
 }
 
+/* CRT scanlines */
+body::after {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+        to bottom,
+        rgba(255,255,255,0.03) 0px,
+        rgba(255,255,255,0.03) 2px,
+        transparent 2px,
+        transparent 4px
+    );
+    z-index: 999;
+}
+
+/* ====== HEADER ====== */
 .banner {
-    background: #111;
-    padding: 20px;
+    padding: 25px;
     text-align: center;
-    border-bottom: 5px solid #f6d000;
+    border-bottom: 3px solid #f6d000;
+    background: #050505;
 }
 
 .banner h1 {
     margin: 0;
-    font-size: 40px;
-    letter-spacing: 3px;
+    font-size: 32px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
 }
 
-.account, .transactions {
+/* ====== PANELS ====== */
+.panel {
     width: 80%;
     margin: 30px auto;
     padding: 20px;
-    background: #1a1a1a;
     border: 2px solid #f6d000;
+    background: rgba(10,10,10,0.8);
+    box-shadow: 0 0 15px #f6d000;
 }
 
+/* ====== BUTTONS ====== */
 button {
-    background: #f6d000;
-    color: #000;
+    background: #000;
+    color: #f6d000;
+    border: 2px solid #f6d000;
     padding: 10px 20px;
-    border: none;
-    font-weight: bold;
+    font-family: "Courier New", monospace;
     text-transform: uppercase;
     cursor: pointer;
+    text-shadow: 0 0 5px #f6d000;
 }
 
 button:hover {
-    background: #ffe34d;
+    background: #f6d000;
+    color: #000;
 }
 
+/* ====== INPUTS ====== */
+input {
+    background: #000;
+    border: 2px solid #f6d000;
+    color: #f6d000;
+    padding: 8px;
+    width: 200px;
+    font-family: "Courier New", monospace;
+    text-shadow: 0 0 5px #f6d000;
+}
+
+/* ====== TABLE ====== */
 table {
     width: 100%;
     border-collapse: collapse;
-    color: #f6d000;
+    margin-top: 15px;
 }
 
 th, td {
     border-bottom: 1px solid #333;
     padding: 10px;
+    text-align: left;
 }
+
+th {
+    text-transform: uppercase;
+}
+
+/* ====== BLINKING CURSOR EFFECT ====== */
+.cursor {
+    display: inline-block;
+    width: 10px;
+    background: #f6d000;
+    animation: blink 1s infinite;
+}
+
+@keyframes blink {
+    0% { opacity: 1; }
+    50% { opacity: 0; }
+    100% { opacity: 1; }
+}
+
