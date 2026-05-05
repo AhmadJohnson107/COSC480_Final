@@ -1,32 +1,39 @@
 const Sequelize = require('sequelize');
 var DataTypes = require('sequelize/lib/data-types');
-require('dotenv').config()
+require('dotenv').config();
 
-async function test() {
-    this.hostname = process.env.DB_HOST;
-    this.user = process.env.DB_USER;
-    this.pass = process.env.DB_PASSWORD;
-    this.db = process.env.DB_DATABASE;
-    this.port = process.env.DB_PORT;
+async function init() {
 
+    // Database credentials
+    const hostname = process.env.DB_HOST;
+    const user = process.env.DB_USER;
+    const pass = process.env.DB_PASSWORD;
+    const db = process.env.DB_DATABASE;
+    const port = process.env.DB_PORT;
 
-    this.sequelize = new Sequelize(
-        this.db, this.user, this.pass,
+    // Sequelize connection
+    const sequelize = new Sequelize(
+        db, user, pass,
         {
-            host: this.hostname,
+            host: hostname,
             dialect: 'mysql'
         }
     );
 
-    // authenticate
-    this.sequelize.authenticate().then(() => {
-        console.log('Database connection has been established successfully.');
-    }).catch((error) => {
-        console.error('Unable to connect to the database: ', error);
-    });
+    // Authenticate
+    try {
+        await sequelize.authenticate();
+        console.log("Database connection established.");
+    } catch (err) {
+        console.error("Unable to connect:", err);
+    }
 
-    // define the user model
-    this.User = this.sequelize.define('user', {
+    // ============================
+    // MODELS
+    // ============================
+
+    // USER MODEL
+    const User = sequelize.define('user', {
         username: {
             type: DataTypes.STRING,
             allowNull: false
@@ -37,55 +44,56 @@ async function test() {
         }
     });
 
-    this.Account = this.sequelize.define('accounts', {
+    // ACCOUNT MODEL
+    const Account = sequelize.define('accounts', {
         account: {
             type: DataTypes.FLOAT,
             defaultValue: 0,
             allowNull: false
+        },
+        rank: {
+            type: DataTypes.STRING,
+            defaultValue: "Recruit"
         }
     });
 
-    this.User.hasOne(this.Account);
-    this.Account.belongsTo(this.User);
-
-    await this.sequelize.sync().catch((error) => {
-        console.log('Unable to create table.', error);
-    });
-
-    /*
-    await this.User.create({
-        username: 'james',
-        password: 'james',
-        account: {account: 5}
-    }, {
-        include: [this.Account],
-    },
-    );
-    */
-
-    const userId = 15;
-
-    
-    await this.Account.findOne({
-        where: {
-            userId: userId
+    // TRANSACTION MODEL
+    const Transaction = sequelize.define('transactions', {
+        type: {
+            type: DataTypes.STRING,
+            allowNull: false   // "War Bond Deposit" or "Requisition Withdrawal"
         },
-        raw: true
-    }).then((result) => {
-        console.log(result.account);
-    });
-    
-
-    await this.Account.update(
-        {account: 1111},
-        {where: {
-            userId: userId
-        }}
-    ).then((result) => {
-        console.log(result.account);
+        amount: {
+            type: DataTypes.FLOAT,
+            allowNull: false
+        }
     });
 
-    await this.sequelize.close();
+    // ============================
+    // ASSOCIATIONS
+    // ============================
+
+    // One user → one account
+    User.hasOne(Account, { foreignKey: "userId" });
+    Account.belongsTo(User, { foreignKey: "userId" });
+
+    // One user → many transactions
+    User.hasMany(Transaction, { foreignKey: "userId" });
+    Transaction.belongsTo(User, { foreignKey: "userId" });
+
+    // ============================
+    // SYNC TABLES
+    // ============================
+
+    try {
+        await sequelize.sync();
+        console.log("Tables synced successfully.");
+    } catch (err) {
+        console.log("Unable to sync tables:", err);
+    }
+
+    // Export models for use in routes
+    return { sequelize, User, Account, Transaction };
 }
 
-test();
+module.exports = init;
